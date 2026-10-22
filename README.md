@@ -1,21 +1,30 @@
 # Atlas
 
-A personal finance app for tracking transactions, monitoring monthly spending, and managing accounts.
+A personal workspace for tracking money, job applications, and tasks.
+
+Sign in, then open a module from the home screen:
+
+- **Expense Tracker** — income and expenses, categories, and monthly spending
+- **Job Applications** — companies, links, interview rounds, and status (`Applied`, `In progress`, `Shortlisted`, `Rejected`)
+- **To-Do List** — tasks with notes, due times, and completion
+
+Signed-in users can also add another account from **Add user**.
 
 ## Project structure
 
 | Folder | Description |
 |--------|-------------|
-| `API/` | ASP.NET Core REST API (PostgreSQL, JWT auth, EF Core) |
+| `API/` | ASP.NET Core REST API (PostgreSQL, JWT auth, EF Core, MongoDB logging) |
 | `UI/` | React frontend (Vite, TypeScript, Tailwind CSS) |
-| `AI/` | AI services *(coming soon)* |
 
 ## Getting started
 
 ### API
 
-1. Copy `API/.env.example` to `API/.env` and set your database connection string.
-2. Run from the `API` folder:
+1. Copy `API/.env.example` to `API/.env`.
+2. Set `ConnectionStrings__DefaultConnection` to your PostgreSQL connection string.
+3. Optional: set `MongoLogging__ConnectionString` to write application logs to MongoDB. Leave it empty to skip Mongo logging.
+4. Run from the `API` folder:
 
 ```bash
 dotnet watch
@@ -25,7 +34,7 @@ API runs at `http://localhost:5236`. Swagger is available at `/swagger` in devel
 
 ### UI
 
-1. Copy `UI/.env.example` to `UI/.env` if needed.
+1. Copy `UI/.env.example` to `UI/.env` if needed. `VITE_API_URL` defaults to `http://localhost:5236`.
 2. Run from the `UI` folder:
 
 ```bash
@@ -35,22 +44,18 @@ npm run dev
 
 UI runs at `http://localhost:5173`.
 
-## AI features *(planned)*
+## API
 
-The `AI/` module will add a **voice assistant** that lets users manage their finances through natural conversation.
+All routes except register and login require a Bearer token.
 
-Instead of navigating the UI manually, users will be able to speak requests such as:
-
-- *"How much did I spend this month?"*
-- *"Add a $45 grocery expense for today."*
-- *"Show my transactions from last week."*
-
-The assistant will interpret the request, call the appropriate Atlas API endpoints, and respond with a spoken or text summary of the result.
-
-> **Status:** Not yet implemented. The current app provides the API and UI foundation this layer will build on.
+| Area | Base path |
+|------|-----------|
+| Accounts | `api/Account` (`register`, `login`) |
+| Transactions | `api/transactions` |
+| Job applications | `api/job-applications` |
+| Todos | `api/todos` |
 
 ## Tech stack
 
-- **Backend:** .NET 10, Entity Framework Core, PostgreSQL (Supabase), JWT
-- **Frontend:** React, TypeScript, Vite, Tailwind CSS
-- **AI:** TBD
+- **Backend:** .NET 10, Entity Framework Core, PostgreSQL, JWT, MongoDB.Driver
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS, React Router
