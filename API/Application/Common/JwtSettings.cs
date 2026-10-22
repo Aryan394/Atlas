@@ -1,4 +1,4 @@
-namespace Moneytize.Api.Application.Common;
+namespace Atlas.Api.Application.Common;
 
 public class JwtSettings
 {

@@ -1,4 +1,4 @@
-namespace Moneytize.Api.Helpers;
+namespace Atlas.Api.Helpers;
 
 public static class CommonHttpResponseHelper
 {

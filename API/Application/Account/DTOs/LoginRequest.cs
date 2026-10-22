@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Moneytize.Api.Application.Account.DTOs;
+namespace Atlas.Api.Application.Account.DTOs;
 
 public class LoginRequest
 {

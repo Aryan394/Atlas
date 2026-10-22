@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Moneytize.Api.Helpers;
+namespace Atlas.Api.Helpers;
 
 public class PaginationParameters
 {

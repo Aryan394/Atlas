@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Moneytize.Api.Application.Account.DTOs;
-using Moneytize.Api.Application.Common;
-using Moneytize.Api.Entity;
-using Moneytize.Api.Infrastructure.Data;
+using Atlas.Api.Application.Account.DTOs;
+using Atlas.Api.Application.Common;
+using Atlas.Api.Entity;
+using Atlas.Api.Infrastructure.Data;
 
-namespace Moneytize.Api.Application.Account;
+namespace Atlas.Api.Application.Account;
 
 public class AccountRepository : IAccountRepository
 {
@@ -35,7 +35,6 @@ public class AccountRepository : IAccountRepository
 
         var user = new User
         {
-            Id = Guid.NewGuid(),
             Email = email,
             PasswordHash = string.Empty
         };

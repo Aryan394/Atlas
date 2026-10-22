@@ -1,4 +1,4 @@
-# Moneytize
+# Atlas
 
 A personal finance app for tracking transactions, monitoring monthly spending, and managing accounts.
 
@@ -45,12 +45,12 @@ Instead of navigating the UI manually, users will be able to speak requests such
 - *"Add a $45 grocery expense for today."*
 - *"Show my transactions from last week."*
 
-The assistant will interpret the request, call the appropriate Moneytize API endpoints, and respond with a spoken or text summary of the result.
+The assistant will interpret the request, call the appropriate Atlas API endpoints, and respond with a spoken or text summary of the result.
 
 > **Status:** Not yet implemented. The current app provides the API and UI foundation this layer will build on.
 
 ## Tech stack
 
-- **Backend:** .NET 8, Entity Framework Core, PostgreSQL (Supabase), JWT
+- **Backend:** .NET 10, Entity Framework Core, PostgreSQL (Supabase), JWT
 - **Frontend:** React, TypeScript, Vite, Tailwind CSS
 - **AI:** TBD

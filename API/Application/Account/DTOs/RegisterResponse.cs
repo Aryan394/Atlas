@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Moneytize.Api.Application.Account.DTOs;
+namespace Atlas.Api.Application.Account.DTOs;
 
 public class RegisterResponse
 {

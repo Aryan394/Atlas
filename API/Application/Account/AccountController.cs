@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Moneytize.Api.Application.Account.DTOs;
-using Moneytize.Api.Helpers;
+using Atlas.Api.Application.Account.DTOs;
+using Atlas.Api.Helpers;
 
-namespace Moneytize.Api.Application.Account;
+namespace Atlas.Api.Application.Account;
 
 [ApiController]
 [Route("api/[controller]")]

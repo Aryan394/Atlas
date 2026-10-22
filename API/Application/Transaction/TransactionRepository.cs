@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using Moneytize.Api.Application.Transaction.DTOs;
-using Moneytize.Api.Helpers;
-using Moneytize.Api.Infrastructure.Data;
-using TransactionEntity = Moneytize.Api.Entity.Transaction;
+using Atlas.Api.Application.Transaction.DTOs;
+using Atlas.Api.Enums;
+using Atlas.Api.Helpers;
+using Atlas.Api.Infrastructure.Data;
+using TransactionEntity = Atlas.Api.Entity.Transaction;
 
-namespace Moneytize.Api.Application.Transaction;
+namespace Atlas.Api.Application.Transaction;
 
 public class TransactionRepository : ITransactionRepository
 {
@@ -37,8 +38,10 @@ public class TransactionRepository : ITransactionRepository
                 Id = t.Id,
                 Description = t.Description,
                 Amount = t.Amount,
+                Type = t.Type,
                 Date = t.Date,
-                Category = t.Category
+                Category = t.Category,
+                CreationTime = t.CreationTime
             });
 
         return await PaginationHelper.PaginateAsync(orderedQuery, request.Page, request.PageSize);
@@ -55,7 +58,10 @@ public class TransactionRepository : ITransactionRepository
 
         var spendingQuery = _dbContext.Transactions
             .AsNoTracking()
-            .Where(t => t.Date >= startDate && t.Date <= endDate && t.Amount < 0);
+            .Where(t =>
+                t.Date >= startDate
+                && t.Date <= endDate
+                && t.Type == TransactionType.Expense);
 
         var totalSpent = await spendingQuery.SumAsync(t => t.Amount);
         var transactionCount = await spendingQuery.CountAsync();
@@ -71,7 +77,7 @@ public class TransactionRepository : ITransactionRepository
         };
     }
 
-    public async Task<TransactionDto?> GetByIdAsync(Guid id)
+    public async Task<TransactionDto?> GetByIdAsync(int id)
     {
         var transaction = await _dbContext.Transactions
             .AsNoTracking()
@@ -84,9 +90,9 @@ public class TransactionRepository : ITransactionRepository
     {
         var transaction = new TransactionEntity
         {
-            Id = Guid.NewGuid(),
             Description = request.Description,
-            Amount = request.Amount,
+            Amount = Math.Abs(request.Amount),
+            Type = request.Type,
             Date = request.Date,
             Category = request.Category
         };
@@ -97,7 +103,7 @@ public class TransactionRepository : ITransactionRepository
         return ToDto(transaction);
     }
 
-    public async Task<TransactionDto?> UpdateAsync(Guid id, UpdateTransactionRequest request)
+    public async Task<TransactionDto?> UpdateAsync(int id, UpdateTransactionRequest request)
     {
         var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id);
         if (transaction is null)
@@ -106,7 +112,8 @@ public class TransactionRepository : ITransactionRepository
         }
 
         transaction.Description = request.Description;
-        transaction.Amount = request.Amount;
+        transaction.Amount = Math.Abs(request.Amount);
+        transaction.Type = request.Type;
         transaction.Date = request.Date;
         transaction.Category = request.Category;
 
@@ -115,7 +122,7 @@ public class TransactionRepository : ITransactionRepository
         return ToDto(transaction);
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(int id)
     {
         var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id);
         if (transaction is null)
@@ -136,7 +143,9 @@ public class TransactionRepository : ITransactionRepository
         Id = transaction.Id,
         Description = transaction.Description,
         Amount = transaction.Amount,
+        Type = transaction.Type,
         Date = transaction.Date,
-        Category = transaction.Category
+        Category = transaction.Category,
+        CreationTime = transaction.CreationTime
     };
 }

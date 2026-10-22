@@ -1,4 +1,4 @@
-namespace Moneytize.Api.Entity;
+namespace Atlas.Api.Entity;
 
 public class User : BaseEntity
 {

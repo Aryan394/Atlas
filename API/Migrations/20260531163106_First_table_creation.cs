@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Moneytize.Api.Migrations
+namespace Atlas.Api.Migrations
 {
     /// <inheritdoc />
     public partial class First_table_creation : Migration

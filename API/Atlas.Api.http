@@ -1,0 +1,3 @@
+@Atlas.Api_HostAddress = http://localhost:5236
+
+GET {{Atlas.Api_HostAddress}}/api/transactions

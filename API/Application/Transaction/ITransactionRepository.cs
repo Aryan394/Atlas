@@ -1,7 +1,7 @@
-using Moneytize.Api.Application.Transaction.DTOs;
-using Moneytize.Api.Helpers;
+using Atlas.Api.Application.Transaction.DTOs;
+using Atlas.Api.Helpers;
 
-namespace Moneytize.Api.Application.Transaction;
+namespace Atlas.Api.Application.Transaction;
 
 public interface ITransactionRepository
 {
@@ -9,11 +9,11 @@ public interface ITransactionRepository
 
     Task<MonthlySpendingResponse> GetMonthlySpendingAsync(GetMonthlySpendingRequest request);
 
-    Task<TransactionDto?> GetByIdAsync(Guid id);
+    Task<TransactionDto?> GetByIdAsync(int id);
 
     Task<TransactionDto> CreateAsync(CreateTransactionRequest request);
 
-    Task<TransactionDto?> UpdateAsync(Guid id, UpdateTransactionRequest request);
+    Task<TransactionDto?> UpdateAsync(int id, UpdateTransactionRequest request);
 
-    Task<bool> DeleteAsync(Guid id);
+    Task<bool> DeleteAsync(int id);
 }

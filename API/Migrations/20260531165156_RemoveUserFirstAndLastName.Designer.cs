@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Moneytize.Api.Infrastructure.Data;
+using Atlas.Api.Infrastructure.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Moneytize.Api.Migrations
+namespace Atlas.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20260531165156_RemoveUserFirstAndLastName")]
@@ -25,7 +25,7 @@ namespace Moneytize.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Moneytize.Api.Entity.User", b =>
+            modelBuilder.Entity("Atlas.Api.Entity.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -52,7 +52,7 @@ namespace Moneytize.Api.Migrations
                     b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("Moneytize.Api.Entity.Transaction", b =>
+            modelBuilder.Entity("Atlas.Api.Entity.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

@@ -1,8 +1,8 @@
-namespace Moneytize.Api.Application.Account.DTOs;
+namespace Atlas.Api.Application.Account.DTOs;
 
 public class UserResponse
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     public required string Email { get; set; }
 

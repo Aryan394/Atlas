@@ -1,6 +1,6 @@
-using Moneytize.Api.Application.Account.DTOs;
+using Atlas.Api.Application.Account.DTOs;
 
-namespace Moneytize.Api.Application.Account;
+namespace Atlas.Api.Application.Account;
 
 public interface IAccountRepository
 {

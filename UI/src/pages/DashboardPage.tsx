@@ -9,7 +9,7 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-          Dashboard
+          Expense Tracker
         </h1>
         <p className="mt-1 text-slate-400">
           Overview of your spending and recent activity

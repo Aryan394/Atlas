@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Moneytize.Api.Migrations
+namespace Atlas.Api.Migrations
 {
     /// <inheritdoc />
     public partial class Added_base_entity : Migration

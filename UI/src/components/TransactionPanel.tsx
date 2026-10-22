@@ -6,10 +6,11 @@ import {
   getTransactions,
   updateTransaction,
 } from '../api/transactions'
-import type { Transaction } from '../types/api'
-import { formatCurrency, formatDate } from '../utils/format'
+import type { Transaction, TransactionType } from '../types/api'
+import { formatCurrency, formatDate, formatDateTime } from '../utils/format'
 import Button from './Button'
 import Card from './Card'
+import ConfirmDialog from './ConfirmDialog'
 import TransactionModal from './TransactionModal'
 
 interface TransactionPanelProps {
@@ -30,7 +31,8 @@ export default function TransactionPanel({
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Transaction | null>(null)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<Transaction | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -61,16 +63,18 @@ export default function TransactionPanel({
     }
   }, [page, startDate, endDate, refreshKey])
 
-  async function handleDelete(id: string) {
-    setDeletingId(id)
+  async function confirmDelete() {
+    if (!pendingDelete?.id) return
+    setDeleting(true)
     try {
-      await deleteTransaction(id)
+      await deleteTransaction(pendingDelete.id)
+      setPendingDelete(null)
       onChanged()
       if (transactions.length === 1 && page > 1) {
         setPage((p) => p - 1)
       }
     } finally {
-      setDeletingId(null)
+      setDeleting(false)
     }
   }
 
@@ -87,6 +91,7 @@ export default function TransactionPanel({
   async function handleSave(payload: {
     description: string
     amount: number
+    type: TransactionType
     date: string
     category?: string
   }) {
@@ -158,11 +163,13 @@ export default function TransactionPanel({
         </div>
 
         <div className="overflow-x-auto rounded-xl border border-[var(--color-border)]">
-          <table className="w-full min-w-[640px] text-left text-sm">
+          <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="bg-[var(--color-surface-muted)] text-slate-400">
               <tr>
                 <th className="px-4 py-3 font-medium">Date</th>
+                <th className="px-4 py-3 font-medium">Created</th>
                 <th className="px-4 py-3 font-medium">Description</th>
+                <th className="px-4 py-3 font-medium">Type</th>
                 <th className="px-4 py-3 font-medium">Category</th>
                 <th className="px-4 py-3 font-medium text-right">Amount</th>
                 <th className="px-4 py-3 font-medium text-right">Actions</th>
@@ -172,27 +179,42 @@ export default function TransactionPanel({
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="border-t border-[var(--color-border)]">
-                    <td colSpan={5} className="px-4 py-4">
+                    <td colSpan={7} className="px-4 py-4">
                       <div className="h-5 w-full rounded skeleton" />
                     </td>
                   </tr>
                 ))
               ) : transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-slate-500">
+                  <td colSpan={7} className="px-4 py-12 text-center text-slate-500">
                     No transactions found
                   </td>
                 </tr>
               ) : (
                 transactions.map((tx) => {
-                  const isIncome = tx.amount >= 0
+                  const amountClass =
+                    tx.type === 'Income'
+                      ? 'text-emerald-400'
+                      : tx.type === 'Expense'
+                        ? 'text-red-400'
+                        : 'text-slate-300'
+                  const amountPrefix =
+                    tx.type === 'Income' ? '+' : tx.type === 'Expense' ? '−' : ''
                   return (
                     <tr
                       key={tx.id}
                       className="border-t border-[var(--color-border)] transition-colors hover:bg-[var(--color-surface-muted)]/50"
                     >
                       <td className="px-4 py-3 text-slate-300">{formatDate(tx.date)}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-slate-400">
+                        {formatDateTime(tx.creationTime)}
+                      </td>
                       <td className="px-4 py-3 font-medium text-white">{tx.description}</td>
+                      <td className="px-4 py-3">
+                        <span className="rounded-full bg-[var(--color-surface-muted)] px-2.5 py-1 text-xs text-slate-300">
+                          {tx.type}
+                        </span>
+                      </td>
                       <td className="px-4 py-3">
                         {tx.category ? (
                           <span className="rounded-full bg-[var(--color-surface-muted)] px-2.5 py-1 text-xs text-slate-300">
@@ -202,12 +224,8 @@ export default function TransactionPanel({
                           <span className="text-slate-600">—</span>
                         )}
                       </td>
-                      <td
-                        className={`px-4 py-3 text-right font-semibold ${
-                          isIncome ? 'text-emerald-400' : 'text-red-400'
-                        }`}
-                      >
-                        {isIncome ? '+' : '−'}
+                      <td className={`px-4 py-3 text-right font-semibold ${amountClass}`}>
+                        {amountPrefix}
                         {formatCurrency(tx.amount)}
                       </td>
                       <td className="px-4 py-3">
@@ -222,8 +240,8 @@ export default function TransactionPanel({
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleDelete(tx.id)}
-                            disabled={deletingId === tx.id}
+                            onClick={() => setPendingDelete(tx)}
+                            disabled={!tx.id}
                             className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-500/15 hover:text-red-400 disabled:opacity-50"
                             aria-label="Delete"
                           >
@@ -270,6 +288,16 @@ export default function TransactionPanel({
             setEditing(null)
           }}
           onSave={handleSave}
+        />
+      )}
+
+      {pendingDelete && (
+        <ConfirmDialog
+          title="Delete transaction"
+          message={`Delete "${pendingDelete.description}"? This cannot be undone.`}
+          loading={deleting}
+          onConfirm={confirmDelete}
+          onCancel={() => setPendingDelete(null)}
         />
       )}
     </>

@@ -1,5 +1,5 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, LogOut, UserPlus, Wallet } from 'lucide-react'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { LayoutGrid, LogOut, UserPlus } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 export default function Layout() {
@@ -20,15 +20,15 @@ export default function Layout() {
 
       <header className="relative z-10 border-b border-[var(--color-border)] bg-[var(--color-surface-elevated)]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-400">
-              <Wallet size={20} />
+              <LayoutGrid size={20} />
             </div>
             <div>
-              <p className="text-lg font-semibold tracking-tight text-white">Moneytize</p>
-              <p className="text-xs text-slate-400">Personal finance</p>
+              <p className="text-lg font-semibold tracking-tight text-white">Atlas</p>
+              <p className="text-xs text-slate-400">Your workspace</p>
             </div>
-          </div>
+          </Link>
 
           <nav className="flex items-center gap-1 sm:gap-2">
             <NavLink
@@ -42,8 +42,8 @@ export default function Layout() {
                 }`
               }
             >
-              <LayoutDashboard size={16} />
-              <span className="hidden sm:inline">Dashboard</span>
+              <LayoutGrid size={16} />
+              <span className="hidden sm:inline">Modules</span>
             </NavLink>
             <NavLink
               to="/register-user"

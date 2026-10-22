@@ -1,6 +1,12 @@
 ## .NET
 bin/
 obj/
+API/bin/
+API/obj/
+**/bin/
+**/obj/
+# Accidental Windows-style path folder created on some volumes
+API/bin\\Debug/
 *.user
 *.suo
 *.userosscache
@@ -15,6 +21,7 @@ obj/
 
 ## OS
 .DS_Store
+._*
 Thumbs.db
 
 ## Logs

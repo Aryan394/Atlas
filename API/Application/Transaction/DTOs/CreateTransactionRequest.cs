@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using Atlas.Api.Enums;
 
-namespace Moneytize.Api.Application.Transaction.DTOs;
+namespace Atlas.Api.Application.Transaction.DTOs;
 
 public class CreateTransactionRequest
 {
@@ -10,6 +11,10 @@ public class CreateTransactionRequest
 
     [Required]
     public decimal Amount { get; set; }
+
+    [Required]
+    [EnumDataType(typeof(TransactionType))]
+    public TransactionType Type { get; set; }
 
     [Required]
     public DateOnly Date { get; set; }

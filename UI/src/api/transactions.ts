@@ -46,7 +46,7 @@ export async function createTransaction(payload: CreateTransactionPayload) {
 }
 
 export async function updateTransaction(
-  id: string,
+  id: number,
   payload: UpdateTransactionPayload,
 ) {
   return apiRequest<Transaction>(`/api/transactions/update/${id}`, {
@@ -55,7 +55,7 @@ export async function updateTransaction(
   })
 }
 
-export async function deleteTransaction(id: string) {
+export async function deleteTransaction(id: number) {
   return apiRequest<void>(`/api/transactions/delete/${id}`, {
     method: 'DELETE',
   })

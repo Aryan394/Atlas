@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
-import type { Transaction } from '../types/api'
+import type { Transaction, TransactionType } from '../types/api'
 import { todayIsoDate } from '../utils/format'
 import Button from './Button'
 import Input from './Input'
@@ -11,6 +11,7 @@ interface TransactionModalProps {
   onSave: (payload: {
     description: string
     amount: number
+    type: TransactionType
     date: string
     category?: string
   }) => Promise<void>
@@ -25,9 +26,7 @@ export default function TransactionModal({
   const [amount, setAmount] = useState(
     transaction ? String(Math.abs(transaction.amount)) : '',
   )
-  const [type, setType] = useState<'expense' | 'income'>(
-    transaction ? (transaction.amount >= 0 ? 'income' : 'expense') : 'expense',
-  )
+  const [type, setType] = useState<TransactionType>(transaction?.type ?? 'Expense')
   const [date, setDate] = useState(transaction?.date ?? todayIsoDate())
   const [category, setCategory] = useState(transaction?.category ?? '')
   const [loading, setLoading] = useState(false)
@@ -45,10 +44,10 @@ export default function TransactionModal({
 
     setLoading(true)
     try {
-      const signedAmount = type === 'expense' ? -Math.abs(parsed) : Math.abs(parsed)
       await onSave({
         description: description.trim(),
-        amount: signedAmount,
+        amount: Math.abs(parsed),
+        type,
         date,
         category: category.trim() || undefined,
       })
@@ -94,11 +93,12 @@ export default function TransactionModal({
               <span className="text-sm font-medium text-slate-300">Type</span>
               <select
                 value={type}
-                onChange={(e) => setType(e.target.value as 'expense' | 'income')}
+                onChange={(e) => setType(e.target.value as TransactionType)}
                 className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-muted)] px-4 py-2.5 text-sm text-white outline-none focus:border-emerald-500/50"
               >
-                <option value="expense">Expense</option>
-                <option value="income">Income</option>
+                <option value="Income">Income</option>
+                <option value="Expense">Expense</option>
+                <option value="Other">Other</option>
               </select>
             </label>
             <Input

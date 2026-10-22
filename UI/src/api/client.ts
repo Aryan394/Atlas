@@ -2,8 +2,8 @@ import type { ApiError } from '../types/api'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5236'
 
-const TOKEN_KEY = 'moneytize_token'
-const EXPIRES_KEY = 'moneytize_expires'
+const TOKEN_KEY = 'atlas_token'
+const EXPIRES_KEY = 'atlas_expires'
 
 export function getStoredToken(): string | null {
   const token = localStorage.getItem(TOKEN_KEY)

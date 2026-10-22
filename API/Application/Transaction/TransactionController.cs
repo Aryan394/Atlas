@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Moneytize.Api.Application.Transaction.DTOs;
-using Moneytize.Api.Helpers;
+using Atlas.Api.Application.Transaction.DTOs;
+using Atlas.Api.Helpers;
 
-namespace Moneytize.Api.Application.Transaction;
+namespace Atlas.Api.Application.Transaction;
 
 [ApiController]
 [Route("api/transactions")]
@@ -56,8 +56,8 @@ public class TransactionController : ControllerBase
         return Ok(spending);
     }
 
-    [HttpGet("get-by-id/{id:guid}")]
-    public async Task<ActionResult<TransactionDto>> GetById(Guid id)
+    [HttpGet("get-by-id/{id:int}")]
+    public async Task<ActionResult<TransactionDto>> GetById(int id)
     {
         var transaction = await _transactionRepository.GetByIdAsync(id);
         if (transaction is null)
@@ -75,8 +75,8 @@ public class TransactionController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, transaction);
     }
 
-    [HttpPut("update/{id:guid}")]
-    public async Task<ActionResult<TransactionDto>> Update(Guid id, [FromBody] UpdateTransactionRequest request)
+    [HttpPut("update/{id:int}")]
+    public async Task<ActionResult<TransactionDto>> Update(int id, [FromBody] UpdateTransactionRequest request)
     {
         var transaction = await _transactionRepository.UpdateAsync(id, request);
         if (transaction is null)
@@ -87,8 +87,8 @@ public class TransactionController : ControllerBase
         return Ok(transaction);
     }
 
-    [HttpDelete("delete/{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    [HttpDelete("delete/{id:int}")]
+    public async Task<IActionResult> Delete(int id)
     {
         var deleted = await _transactionRepository.DeleteAsync(id);
         if (!deleted)

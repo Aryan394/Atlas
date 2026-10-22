@@ -1,4 +1,4 @@
-namespace Moneytize.Api.Application.Transaction.DTOs;
+namespace Atlas.Api.Application.Transaction.DTOs;
 
 public class MonthlySpendingResponse
 {

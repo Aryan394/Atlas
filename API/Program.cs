@@ -1,15 +1,20 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using Moneytize.Api.Application.Account;
-using Moneytize.Api.Application.Common;
-using Moneytize.Api.Application.Transaction;
-using Moneytize.Api.Helpers;
-using Moneytize.Api.Infrastructure.Data;
+using Microsoft.OpenApi;
+using Atlas.Api.Application.Account;
+using Atlas.Api.Application.Common;
+using Atlas.Api.Application.JobApplication;
+using Atlas.Api.Application.Todo;
+using Atlas.Api.Application.Transaction;
+using Atlas.Api.Helpers;
+using Atlas.Api.Infrastructure.Data;
+using Atlas.Api.Infrastructure.Logging;
+using Microsoft.AspNetCore.Diagnostics;
 
 Env.TraversePath().Load();
 
@@ -21,9 +26,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+builder.Services.AddMongoLogging(builder.Configuration);
+
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
 
 builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    })
     .ConfigureApiBehaviorOptions(options =>
     {
         options.InvalidModelStateResponseFactory = context =>
@@ -41,7 +52,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Moneytize API",
+        Title = "Atlas API",
         Version = "v1"
     });
 
@@ -54,24 +65,16 @@ builder.Services.AddSwaggerGen(options =>
         In = ParameterLocation.Header
     });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
     });
 });
 
 builder.Services.AddHealthChecks();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
+builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
 var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
@@ -116,7 +119,16 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Development", policy =>
     {
         policy
-            .WithOrigins("http://localhost:3000", "http://localhost:5173")
+            .SetIsOriginAllowed(origin =>
+            {
+                if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                {
+                    return false;
+                }
+
+                return uri.Scheme is "http" or "https"
+                    && (uri.Host is "localhost" or "127.0.0.1");
+            })
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -124,24 +136,47 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseMongoLogging();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseCors("Development");
 }
 
 app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
     {
+        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+        var logger = context.RequestServices.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("Atlas.Api.UnhandledException");
+
+        if (exception is not null)
+        {
+            logger.LogError(
+                exception,
+                "Unhandled exception for {Method} {Path}",
+                context.Request.Method,
+                context.Request.Path.Value);
+            context.Items[MongoHttpContextLoggingMiddleware.ServerErrorLoggedItemKey] = true;
+        }
+
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
         context.Response.ContentType = "application/json";
         await context.Response.WriteAsJsonAsync(CommonHttpResponseHelper.CreateInternalServerErrorResponse());
     });
 });
 
-app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("Development");
+}
+else
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 
